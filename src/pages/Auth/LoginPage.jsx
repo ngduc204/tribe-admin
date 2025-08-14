@@ -4,6 +4,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../api/authService';
+import { getUserFromToken } from '../../utils/jwtUtils';
 
 const { Title } = Typography;
 
@@ -24,13 +25,19 @@ const LoginPage = () => {
         password: values.password,
       });
 
-      // Validate response structure
-      if (!response.token || !response.user) {
+      // Validate response structure - API trả về JWT token trong data field
+      if (!response || typeof response !== 'string') {
         throw new Error('Dữ liệu phản hồi không hợp lệ từ máy chủ.');
       }
 
+      // Lấy thông tin user từ JWT token
+      const userData = getUserFromToken(response);
+      if (!userData) {
+        throw new Error('Không thể xác thực thông tin người dùng từ token.');
+      }
+
       // Lưu token và thông tin user vào AuthContext
-      authLogin(response.token, response.user);
+      authLogin(response, userData);
       
       // Hiển thị thông báo thành công
       message.success('Đăng nhập thành công! Chào mừng bạn trở lại.');

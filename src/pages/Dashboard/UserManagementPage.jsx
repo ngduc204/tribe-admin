@@ -24,11 +24,12 @@ const UserManagementPage = () => {
     total: 0,
   });
 
+
+
   const fetchUsers = async (page = 0, pageSize = 10, search = '', status = '') => {
     setLoading(true);
     try {
       const response = await userService.getUsers(page, pageSize, search, status);
-      console.log('Fetch users response:', response);
       setUsers(response.content || []);
       setPagination({
         current: response.pageable?.pageNumber + 1 || 1,
@@ -98,8 +99,6 @@ const UserManagementPage = () => {
 
     try {
       const response = await userService.changeUserRole(selectedUser.id, newRole);
-      console.log('Change role response:', response);
-      
       message.success(`Đã thay đổi vai trò người dùng thành công`);
       
       // Refresh data
@@ -129,36 +128,31 @@ const UserManagementPage = () => {
   };
 
   const handleBlockUser = (userId, isBlocked, userName) => {
-    console.log('handleBlockUser called:', { userId, isBlocked, userName });
+    if (!userId) {
+      message.error('ID người dùng không hợp lệ');
+      return;
+    }
     
     const action = isBlocked ? 'bỏ chặn' : 'chặn';
-    const title = isBlocked ? 'Bỏ chặn người dùng' : 'Chặn người dùng';
     const content = `Bạn có chắc muốn ${action} người dùng "${userName}" không?`;
 
     Modal.confirm({
-      title: title,
+      title: isBlocked ? 'Bỏ chặn người dùng' : 'Chặn người dùng',
       content: content,
       okText: 'Xác nhận',
       cancelText: 'Hủy',
       okType: isBlocked ? 'default' : 'danger',
       onOk: async () => {
-        console.log('Modal confirmed, starting block operation');
-        // Add user to blocking set
         setBlockingUsers(prev => new Set(prev).add(userId));
         
         try {
           const response = await userService.blockUser(userId, !isBlocked, `Được ${action} bởi admin`);
-          console.log('Block user response:', response);
-          
           message.success(`Đã ${action} người dùng thành công`);
-          
-          // Refresh data
           await fetchUsers(pagination.current - 1, pagination.pageSize, searchKey, statusFilter);
         } catch (error) {
           console.error('Error blocking user:', error);
           message.error(`Không thể ${action} người dùng: ${error.message || 'Lỗi không xác định'}`);
         } finally {
-          // Remove user from blocking set
           setBlockingUsers(prev => {
             const newSet = new Set(prev);
             newSet.delete(userId);
@@ -259,7 +253,6 @@ const UserManagementPage = () => {
       render: (_, record) => {
         const isBlocking = blockingUsers.has(record.id);
         const isChangingRole = changingRoleUsers.has(record.id);
-        console.log('Rendering action button for record:', record);
         return (
           <Space>
             <Button
@@ -270,7 +263,6 @@ const UserManagementPage = () => {
               loading={isBlocking}
               disabled={isBlocking || isChangingRole}
               onClick={() => {
-                console.log('Block button clicked for user:', record);
                 handleBlockUser(record.id, record.isBlocked, record.displayName);
               }}
             >
@@ -283,7 +275,6 @@ const UserManagementPage = () => {
               loading={isChangingRole}
               disabled={isBlocking || isChangingRole}
               onClick={() => {
-                console.log('Change role button clicked for user:', record);
                 handleChangeRole(record);
               }}
             >
@@ -295,8 +286,7 @@ const UserManagementPage = () => {
     },
   ];
 
-  console.log('Current users state:', users);
-  console.log('Current blocking users:', blockingUsers);
+
 
   return (
     <div>
@@ -305,6 +295,7 @@ const UserManagementPage = () => {
         <Text type="secondary">
           Tổng cộng {pagination.total} người dùng
         </Text>
+
       </div>
 
       {/* Search and Filter Section */}
@@ -362,6 +353,7 @@ const UserManagementPage = () => {
         onChange={handleTableChange}
         rowKey="id"
         scroll={{ x: 1400 }}
+
       />
 
       {/* Modal thay đổi vai trò */}

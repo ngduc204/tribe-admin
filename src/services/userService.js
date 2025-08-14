@@ -21,12 +21,10 @@ const userService = {
 
   blockUser: async (userId, isBlocked, reason = '') => {
     try {
-      console.log('Blocking user:', { userId, isBlocked, reason });
       const response = await axiosClient.put(`/api/admin/users/${userId}/block`, {
         isBlocked,
         reason
       });
-      console.log('Block user API response:', response);
       return response;
     } catch (error) {
       console.error('Block user service error:', error);
