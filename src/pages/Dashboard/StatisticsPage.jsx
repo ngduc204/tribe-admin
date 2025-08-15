@@ -6,7 +6,8 @@ import {
   StopOutlined, 
   UserAddOutlined,
   CrownOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  LoginOutlined
 } from '@ant-design/icons';
 import userService from '../../services/userService';
 
@@ -14,6 +15,7 @@ const { Title } = Typography;
 
 const StatisticsPage = () => {
   const [stats, setStats] = useState(null);
+  const [totalLoginCount, setTotalLoginCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,9 +24,16 @@ const StatisticsPage = () => {
     setError(null);
     
     try {
-      const response = await userService.getUserStatistics();
-      console.log('Statistics response:', response);
-      setStats(response);
+      const [statsResponse, loginCount] = await Promise.all([
+        userService.getUserStatistics(),
+        userService.getTotalLoginCount()
+      ]);
+      
+      console.log('Statistics response:', statsResponse);
+      console.log('Total login count:', loginCount);
+      
+      setStats(statsResponse);
+      setTotalLoginCount(loginCount);
     } catch (err) {
       console.error('Error fetching statistics:', err);
       setError(err.message || 'Không thể tải dữ liệu thống kê');
@@ -148,6 +157,18 @@ const StatisticsPage = () => {
           </Card>
         </Col>
 
+        {/* Tổng số lần truy cập */}
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <Statistic
+              title="Tổng số lần truy cập"
+              value={totalLoginCount}
+              prefix={<LoginOutlined style={{ color: '#13c2c2' }} />}
+              valueStyle={{ color: '#13c2c2' }}
+            />
+          </Card>
+        </Col>
+
         {/* Tỷ lệ hoạt động */}
         <Col xs={24} sm={12} lg={6}>
           <Card>
@@ -182,6 +203,18 @@ const StatisticsPage = () => {
               value={stats?.totalUsers > 0 ? ((stats?.adminUsers / stats?.totalUsers) * 100).toFixed(1) : 0}
               suffix="%"
               prefix={<CrownOutlined style={{ color: '#fa8c16' }} />}
+              valueStyle={{ color: '#fa8c16' }}
+            />
+          </Card>
+        </Col>
+
+        {/* Trung bình truy cập/người dùng */}
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <Statistic
+              title="TB truy cập/người dùng"
+              value={stats?.totalUsers > 0 ? (totalLoginCount / stats?.totalUsers).toFixed(1) : 0}
+              prefix={<LoginOutlined style={{ color: '#fa8c16' }} />}
               valueStyle={{ color: '#fa8c16' }}
             />
           </Card>
