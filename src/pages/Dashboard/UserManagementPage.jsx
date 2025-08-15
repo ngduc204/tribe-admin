@@ -18,6 +18,8 @@ const UserManagementPage = () => {
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newRole, setNewRole] = useState('');
+  const [blockModalVisible, setBlockModalVisible] = useState(false);
+  const [blockModalData, setBlockModalData] = useState(null);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -98,7 +100,7 @@ const UserManagementPage = () => {
     setChangingRoleUsers(prev => new Set(prev).add(selectedUser.id));
 
     try {
-      const response = await userService.changeUserRole(selectedUser.id, newRole);
+      await userService.changeUserRole(selectedUser.id, newRole);
       message.success(`Đã thay đổi vai trò người dùng thành công`);
       
       // Refresh data
@@ -128,6 +130,8 @@ const UserManagementPage = () => {
   };
 
   const handleBlockUser = (userId, isBlocked, userName) => {
+    console.log('gọi hàm handleBlockUser');
+
     if (!userId) {
       message.error('ID người dùng không hợp lệ');
       return;
@@ -136,31 +140,44 @@ const UserManagementPage = () => {
     const action = isBlocked ? 'bỏ chặn' : 'chặn';
     const content = `Bạn có chắc muốn ${action} người dùng "${userName}" không?`;
 
-    Modal.confirm({
-      title: isBlocked ? 'Bỏ chặn người dùng' : 'Chặn người dùng',
-      content: content,
-      okText: 'Xác nhận',
-      cancelText: 'Hủy',
-      okType: isBlocked ? 'default' : 'danger',
-      onOk: async () => {
-        setBlockingUsers(prev => new Set(prev).add(userId));
-        
-        try {
-          const response = await userService.blockUser(userId, !isBlocked, `Được ${action} bởi admin`);
-          message.success(`Đã ${action} người dùng thành công`);
-          await fetchUsers(pagination.current - 1, pagination.pageSize, searchKey, statusFilter);
-        } catch (error) {
-          console.error('Error blocking user:', error);
-          message.error(`Không thể ${action} người dùng: ${error.message || 'Lỗi không xác định'}`);
-        } finally {
-          setBlockingUsers(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(userId);
-            return newSet;
-          });
-        }
-      },
+    setBlockModalData({
+      userId,
+      isBlocked,
+      userName,
+      action,
+      content
     });
+    setBlockModalVisible(true);
+  };
+
+  const handleBlockModalOk = async () => {
+    if (!blockModalData) return;
+
+    const { userId, isBlocked, action } = blockModalData;
+    setBlockingUsers(prev => new Set(prev).add(userId));
+    
+    try {
+      await userService.blockUser(userId, !isBlocked, `Được ${action} bởi admin`);
+      message.success(`Đã ${action} người dùng thành công`);
+      await fetchUsers(pagination.current - 1, pagination.pageSize, searchKey, statusFilter);
+    } catch (error) {
+      console.error('Error blocking user:', error);
+      message.error(`Không thể ${action} người dùng: ${error.message || 'Lỗi không xác định'}`);
+    } finally {
+      setBlockingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    }
+    
+    setBlockModalVisible(false);
+    setBlockModalData(null);
+  };
+
+  const handleBlockModalCancel = () => {
+    setBlockModalVisible(false);
+    setBlockModalData(null);
   };
 
   const getStatusTag = (status, isBlocked) => {
@@ -397,6 +414,22 @@ const UserManagementPage = () => {
               </div>
             )}
           </div>
+        )}
+      </Modal>
+
+      {/* Modal chặn/bỏ chặn người dùng */}
+      <Modal
+        title={blockModalData ? (blockModalData.isBlocked ? 'Bỏ chặn người dùng' : 'Chặn người dùng') : ''}
+        open={blockModalVisible}
+        onOk={handleBlockModalOk}
+        onCancel={handleBlockModalCancel}
+        okText="Xác nhận"
+        cancelText="Hủy"
+        okType={blockModalData?.isBlocked ? 'default' : 'danger'}
+        confirmLoading={blockModalData ? blockingUsers.has(blockModalData.userId) : false}
+      >
+        {blockModalData && (
+          <p>{blockModalData.content}</p>
         )}
       </Modal>
     </div>
