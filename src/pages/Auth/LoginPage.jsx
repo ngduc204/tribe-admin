@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Card, Row, Col, Alert, Typography, message } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Card, Row, Col, Alert, Typography, message, Result } from 'antd';
+import { UserOutlined, LockOutlined, LockOutlined as LockIcon } from '@ant-design/icons';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../api/authService';
 import { getUserFromToken } from '../../utils/jwtUtils';
@@ -11,12 +11,23 @@ const { Title } = Typography;
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [accessDenied, setAccessDenied] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login: authLogin } = useAuth();
+
+  // Kiểm tra URL parameter để hiển thị thông báo lỗi
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    if (urlParams.get('error') === 'access_denied') {
+      setAccessDenied(true);
+    }
+  }, [location]);
 
   const onFinish = async (values) => {
     setLoading(true);
     setErrorMessage('');
+    setAccessDenied(false);
 
     try {
       // Gọi API đăng nhập
@@ -36,6 +47,13 @@ const LoginPage = () => {
         throw new Error('Không thể xác thực thông tin người dùng từ token.');
       }
 
+      // Kiểm tra role - chỉ cho phép admin đăng nhập
+      if (userData.role !== 'ROLE_ADMIN') {
+        setAccessDenied(true);
+        setLoading(false);
+        return;
+      }
+
       // Lưu token và thông tin user vào AuthContext
       authLogin(response, userData);
       
@@ -51,6 +69,51 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  // Hiển thị trang thông báo không có quyền truy cập
+  if (accessDenied) {
+    return (
+      <Row justify="center" align="middle" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
+        <Col xs={24} sm={20} md={16} lg={12} xl={8}>
+          <Card 
+            style={{ 
+              boxShadow: '0 8px 32px rgba(139, 92, 246, 0.2)', 
+              borderRadius: '16px',
+              border: 'none',
+              background: 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            <Result
+              status="403"
+              icon={<LockIcon style={{ color: '#8b5cf6' }} />}
+              title="Không có quyền truy cập"
+              subTitle="Bạn không có quyền truy cập hệ thống này. Đây là trang dành cho quản trị viên."
+              extra={[
+                <Button 
+                  type="primary" 
+                  key="back" 
+                  onClick={() => {
+                    setAccessDenied(false);
+                    navigate('/login', { replace: true });
+                  }}
+                  style={{
+                    backgroundColor: '#8b5cf6',
+                    borderColor: '#8b5cf6',
+                    borderRadius: '8px',
+                    height: '40px',
+                    padding: '0 24px'
+                  }}
+                >
+                  Quay lại đăng nhập
+                </Button>
+              ]}
+            />
+          </Card>
+        </Col>
+      </Row>
+    );
+  }
 
   return (
     <Row justify="center" align="middle" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
@@ -143,7 +206,7 @@ const LoginPage = () => {
 
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
             <p style={{ color: '#999', fontSize: '14px', margin: 0 }}>
-              Sử dụng thông tin đăng nhập được cung cấp bởi quản trị viên Tribe Admin
+              Chỉ quản trị viên mới có quyền truy cập hệ thống này
             </p>
           </div>
         </Card>
