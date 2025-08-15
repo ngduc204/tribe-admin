@@ -109,14 +109,9 @@ const AdminLayout = () => {
           />
           
           <Space>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '14px', fontWeight: '500' }}>
+              <div style={{ fontSize: '14px', fontWeight: '500', paddingRight: '20px'}}>
                 {user?.name || user?.email || 'Admin User'}
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>
-                {user?.role || 'ROLE_ADMIN'}
-              </div>
-            </div>
             <Avatar icon={<UserOutlined />} />
             <Button 
               type="text" 
