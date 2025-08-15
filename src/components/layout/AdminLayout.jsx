@@ -1,5 +1,6 @@
 import React from 'react';
-import { Layout, Menu, Button, Row, Col, Avatar, Typography, Space, Modal, message } from 'antd';
+import { Layout, Menu, Button, Row, Col, Avatar, Typography, Space, message } from 'antd';
+import { Modal } from 'antd';
 import { 
   DashboardOutlined, 
   UserOutlined, 
@@ -7,21 +8,17 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined
 } from '@ant-design/icons';
-import { Link, Outlet, useLocation, Navigate } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
 const AdminLayout = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [collapsed, setCollapsed] = React.useState(false);
-
-  // Nếu chưa đăng nhập, điều hướng về trang login
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  const [logoutModalVisible, setLogoutModalVisible] = React.useState(false);
 
   // Cấu hình menu items
   const menuItems = [
@@ -38,17 +35,20 @@ const AdminLayout = () => {
   ];
 
   const handleLogout = () => {
-    Modal.confirm({
-      title: 'Xác nhận đăng xuất',
-      content: 'Bạn có chắc muốn đăng xuất khỏi hệ thống?',
-      okText: 'Đăng xuất',
-      cancelText: 'Hủy',
-      okType: 'danger',
-      onOk: () => {
-        logout();
-        message.success('Đã đăng xuất thành công');
-      },
-    });
+    console.log('gọi hàm handleLogout');
+    setLogoutModalVisible(true);
+  };
+
+  const confirmLogout = () => {
+    console.log('Xác nhận đăng xuất');
+    logout();
+    message.success('Đã đăng xuất thành công');
+    setLogoutModalVisible(false);
+  };
+
+  const cancelLogout = () => {
+    console.log('Hủy đăng xuất');
+    setLogoutModalVisible(false);
   };
 
   return (
@@ -139,6 +139,19 @@ const AdminLayout = () => {
           <Outlet />
         </Content>
       </Layout>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        title="Xác nhận đăng xuất"
+        open={logoutModalVisible}
+        onOk={confirmLogout}
+        onCancel={cancelLogout}
+        okText="Đăng xuất"
+        cancelText="Hủy"
+        okType="danger"
+      >
+        <p>Bạn có chắc muốn đăng xuất khỏi hệ thống?</p>
+      </Modal>
     </Layout>
   );
 };
