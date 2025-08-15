@@ -6,7 +6,8 @@ import {
   StopOutlined, 
   UserAddOutlined,
   CrownOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  LoginOutlined
 } from '@ant-design/icons';
 import userService from '../../services/userService';
 
@@ -14,6 +15,7 @@ const { Title } = Typography;
 
 const StatisticsPage = () => {
   const [stats, setStats] = useState(null);
+  const [totalLoginCount, setTotalLoginCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,9 +24,16 @@ const StatisticsPage = () => {
     setError(null);
     
     try {
-      const response = await userService.getUserStatistics();
-      console.log('Statistics response:', response);
-      setStats(response);
+      const [statsResponse, loginCount] = await Promise.all([
+        userService.getUserStatistics(),
+        userService.getTotalLoginCount()
+      ]);
+      
+      console.log('Statistics response:', statsResponse);
+      console.log('Total login count:', loginCount);
+      
+      setStats(statsResponse);
+      setTotalLoginCount(loginCount);
     } catch (err) {
       console.error('Error fetching statistics:', err);
       setError(err.message || 'Không thể tải dữ liệu thống kê');
@@ -81,28 +90,29 @@ const StatisticsPage = () => {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <Title level={2}>Thống kê người dùng</Title>
-        <p style={{ color: '#666', margin: 0 }}>
+        <Title level={2} style={{ color: '#8b5cf6', fontWeight: 'bold' }}>Thống kê người dùng - Tribe Admin</Title>
+        <p style={{ color: '#666', margin: 0, fontSize: '16px' }}>
           Tổng quan về tình hình người dùng trong hệ thống
         </p>
       </div>
 
       <Row gutter={[16, 16]}>
+        {/* Hàng 1: Nhóm tổng quan và trạng thái người dùng */}
         {/* Tổng số người dùng */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
             <Statistic
               title="Tổng người dùng"
               value={stats?.totalUsers || 0}
-              prefix={<UserOutlined style={{ color: '#1890ff' }} />}
-              valueStyle={{ color: '#1890ff' }}
+              prefix={<UserOutlined style={{ color: '#8b5cf6' }} />}
+              valueStyle={{ color: '#8b5cf6' }}
             />
           </Card>
         </Col>
 
         {/* Người dùng hoạt động */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
             <Statistic
               title="Người dùng hoạt động"
               value={stats?.activeUsers || 0}
@@ -113,8 +123,8 @@ const StatisticsPage = () => {
         </Col>
 
         {/* Người dùng bị chặn */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
             <Statistic
               title="Người dùng bị chặn"
               value={stats?.blockedUsers || 0}
@@ -124,21 +134,9 @@ const StatisticsPage = () => {
           </Card>
         </Col>
 
-        {/* Người dùng mới hôm nay */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Người dùng mới hôm nay"
-              value={stats?.newUsersToday || 0}
-              prefix={<UserAddOutlined style={{ color: '#722ed1' }} />}
-              valueStyle={{ color: '#722ed1' }}
-            />
-          </Card>
-        </Col>
-
         {/* Quản trị viên */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
             <Statistic
               title="Quản trị viên"
               value={stats?.adminUsers || 0}
@@ -148,9 +146,22 @@ const StatisticsPage = () => {
           </Card>
         </Col>
 
+        {/* Người dùng mới hôm nay */}
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
+            <Statistic
+              title="Người dùng mới hôm nay"
+              value={stats?.newUsersToday || 0}
+              prefix={<UserAddOutlined style={{ color: '#8b5cf6' }} />}
+              valueStyle={{ color: '#8b5cf6' }}
+            />
+          </Card>
+        </Col>
+
+        {/* Hàng 2: Nhóm phân tích tỷ lệ và truy cập */}
         {/* Tỷ lệ hoạt động */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
             <Statistic
               title="Tỷ lệ hoạt động"
               value={stats?.totalUsers > 0 ? ((stats?.activeUsers / stats?.totalUsers) * 100).toFixed(1) : 0}
@@ -162,8 +173,8 @@ const StatisticsPage = () => {
         </Col>
 
         {/* Tỷ lệ bị chặn */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
             <Statistic
               title="Tỷ lệ bị chặn"
               value={stats?.totalUsers > 0 ? ((stats?.blockedUsers / stats?.totalUsers) * 100).toFixed(1) : 0}
@@ -175,13 +186,37 @@ const StatisticsPage = () => {
         </Col>
 
         {/* Tỷ lệ quản trị viên */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
             <Statistic
               title="Tỷ lệ quản trị viên"
               value={stats?.totalUsers > 0 ? ((stats?.adminUsers / stats?.totalUsers) * 100).toFixed(1) : 0}
               suffix="%"
               prefix={<CrownOutlined style={{ color: '#fa8c16' }} />}
+              valueStyle={{ color: '#fa8c16' }}
+            />
+          </Card>
+        </Col>
+
+        {/* Tổng số lần truy cập */}
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
+            <Statistic
+              title="Tổng số lần truy cập"
+              value={totalLoginCount}
+              prefix={<LoginOutlined style={{ color: '#13c2c2' }} />}
+              valueStyle={{ color: '#13c2c2' }}
+            />
+          </Card>
+        </Col>
+
+        {/* Trung bình truy cập/người dùng */}
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card style={{ borderRadius: '12px', border: '1px solid #e0e7ff', boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)' }}>
+            <Statistic
+              title="TB truy cập/người dùng"
+              value={stats?.totalUsers > 0 ? (totalLoginCount / stats?.totalUsers).toFixed(1) : 0}
+              prefix={<LoginOutlined style={{ color: '#fa8c16' }} />}
               valueStyle={{ color: '#fa8c16' }}
             />
           </Card>
@@ -195,6 +230,14 @@ const StatisticsPage = () => {
           icon={<ReloadOutlined />}
           onClick={handleRefresh}
           loading={loading}
+          style={{
+            backgroundColor: '#8b5cf6',
+            borderColor: '#8b5cf6',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+            height: '40px',
+            padding: '0 24px'
+          }}
         >
           Làm mới thống kê
         </Button>

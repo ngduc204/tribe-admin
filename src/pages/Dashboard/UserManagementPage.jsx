@@ -18,6 +18,8 @@ const UserManagementPage = () => {
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newRole, setNewRole] = useState('');
+  const [blockModalVisible, setBlockModalVisible] = useState(false);
+  const [blockModalData, setBlockModalData] = useState(null);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -98,7 +100,7 @@ const UserManagementPage = () => {
     setChangingRoleUsers(prev => new Set(prev).add(selectedUser.id));
 
     try {
-      const response = await userService.changeUserRole(selectedUser.id, newRole);
+      await userService.changeUserRole(selectedUser.id, newRole);
       message.success(`Đã thay đổi vai trò người dùng thành công`);
       
       // Refresh data
@@ -128,6 +130,8 @@ const UserManagementPage = () => {
   };
 
   const handleBlockUser = (userId, isBlocked, userName) => {
+    console.log('gọi hàm handleBlockUser');
+
     if (!userId) {
       message.error('ID người dùng không hợp lệ');
       return;
@@ -136,31 +140,44 @@ const UserManagementPage = () => {
     const action = isBlocked ? 'bỏ chặn' : 'chặn';
     const content = `Bạn có chắc muốn ${action} người dùng "${userName}" không?`;
 
-    Modal.confirm({
-      title: isBlocked ? 'Bỏ chặn người dùng' : 'Chặn người dùng',
-      content: content,
-      okText: 'Xác nhận',
-      cancelText: 'Hủy',
-      okType: isBlocked ? 'default' : 'danger',
-      onOk: async () => {
-        setBlockingUsers(prev => new Set(prev).add(userId));
-        
-        try {
-          const response = await userService.blockUser(userId, !isBlocked, `Được ${action} bởi admin`);
-          message.success(`Đã ${action} người dùng thành công`);
-          await fetchUsers(pagination.current - 1, pagination.pageSize, searchKey, statusFilter);
-        } catch (error) {
-          console.error('Error blocking user:', error);
-          message.error(`Không thể ${action} người dùng: ${error.message || 'Lỗi không xác định'}`);
-        } finally {
-          setBlockingUsers(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(userId);
-            return newSet;
-          });
-        }
-      },
+    setBlockModalData({
+      userId,
+      isBlocked,
+      userName,
+      action,
+      content
     });
+    setBlockModalVisible(true);
+  };
+
+  const handleBlockModalOk = async () => {
+    if (!blockModalData) return;
+
+    const { userId, isBlocked, action } = blockModalData;
+    setBlockingUsers(prev => new Set(prev).add(userId));
+    
+    try {
+      await userService.blockUser(userId, !isBlocked, `Được ${action} bởi admin`);
+      message.success(`Đã ${action} người dùng thành công`);
+      await fetchUsers(pagination.current - 1, pagination.pageSize, searchKey, statusFilter);
+    } catch (error) {
+      console.error('Error blocking user:', error);
+      message.error(`Không thể ${action} người dùng: ${error.message || 'Lỗi không xác định'}`);
+    } finally {
+      setBlockingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    }
+    
+    setBlockModalVisible(false);
+    setBlockModalData(null);
+  };
+
+  const handleBlockModalCancel = () => {
+    setBlockModalVisible(false);
+    setBlockModalData(null);
   };
 
   const getStatusTag = (status, isBlocked) => {
@@ -291,8 +308,8 @@ const UserManagementPage = () => {
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <Typography.Title level={3}>Quản lý người dùng</Typography.Title>
-        <Text type="secondary">
+        <Typography.Title level={3} style={{ color: '#8b5cf6', fontWeight: 'bold' }}>Quản lý người dùng - Tribe Admin</Typography.Title>
+        <Text type="secondary" style={{ fontSize: '16px' }}>
           Tổng cộng {pagination.total} người dùng
         </Text>
 
@@ -310,6 +327,7 @@ const UserManagementPage = () => {
             onChange={(e) => setSearchKey(e.target.value)}
             onSearch={handleSearch}
             loading={searchLoading}
+            style={{ borderRadius: '8px' }}
           />
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
@@ -317,7 +335,7 @@ const UserManagementPage = () => {
             placeholder="Lọc theo trạng thái"
             allowClear
             size="large"
-            style={{ width: '100%' }}
+            style={{ width: '100%', borderRadius: '8px' }}
             value={statusFilter}
             onChange={handleStatusFilterChange}
             options={[
@@ -331,7 +349,13 @@ const UserManagementPage = () => {
             icon={<ReloadOutlined />}
             size="large"
             onClick={handleRefresh}
-            style={{ width: '100%' }}
+            style={{ 
+              width: '100%', 
+              borderRadius: '8px',
+              backgroundColor: '#8b5cf6',
+              borderColor: '#8b5cf6',
+              color: 'white'
+            }}
           >
             Làm mới
           </Button>
@@ -353,6 +377,7 @@ const UserManagementPage = () => {
         onChange={handleTableChange}
         rowKey="id"
         scroll={{ x: 1400 }}
+        style={{ borderRadius: '12px' }}
 
       />
 
@@ -365,6 +390,7 @@ const UserManagementPage = () => {
         okText="Xác nhận"
         cancelText="Hủy"
         confirmLoading={changingRoleUsers.has(selectedUser?.id)}
+        okButtonProps={{ style: { backgroundColor: '#8b5cf6', borderColor: '#8b5cf6' } }}
       >
         {selectedUser && (
           <div>
@@ -397,6 +423,28 @@ const UserManagementPage = () => {
               </div>
             )}
           </div>
+        )}
+      </Modal>
+
+      {/* Modal chặn/bỏ chặn người dùng */}
+      <Modal
+        title={blockModalData ? (blockModalData.isBlocked ? 'Bỏ chặn người dùng' : 'Chặn người dùng') : ''}
+        open={blockModalVisible}
+        onOk={handleBlockModalOk}
+        onCancel={handleBlockModalCancel}
+        okText="Xác nhận"
+        cancelText="Hủy"
+        okType={blockModalData?.isBlocked ? 'default' : 'primary'}
+        confirmLoading={blockModalData ? blockingUsers.has(blockModalData.userId) : false}
+        okButtonProps={{ 
+          style: { 
+            backgroundColor: blockModalData?.isBlocked ? '#52c41a' : '#8b5cf6', 
+            borderColor: blockModalData?.isBlocked ? '#52c41a' : '#8b5cf6' 
+          } 
+        }}
+      >
+        {blockModalData && (
+          <p>{blockModalData.content}</p>
         )}
       </Modal>
     </div>

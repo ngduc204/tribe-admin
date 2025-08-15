@@ -43,33 +43,43 @@ axiosClient.interceptors.response.use(
     // Trường hợp thất bại HTTP (4xx, 5xx) hoặc lỗi mạng
     let errorMessage = 'Đã xảy ra lỗi không xác định';
     
-         if (error.response) {
-       // Có response từ server
-       const { status } = error.response;
-       
-       // Handle 401 Unauthorized (token expired or invalid)
-       if (status === 401) {
-         // Clear authentication data
-         localStorage.removeItem('authToken');
-         localStorage.removeItem('user');
-         
-         // Redirect to login if not already there
-         if (window.location.pathname !== '/login') {
-           window.location.href = '/login';
-         }
-       }
-       
-       if (error.response.data && error.response.data.status) {
-         errorMessage = error.response.data.status.displayMessage;
-       } else if (error.response.data && error.response.data.message) {
-         errorMessage = error.response.data.message;
-       } else {
-         errorMessage = `Lỗi ${error.response.status}: ${error.response.statusText}`;
-       }
-          } else if (error.request) {
-       // Không có response từ server (lỗi mạng)
-       errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.';
-     } else {
+    if (error.response) {
+      // Có response từ server
+      const { status } = error.response;
+      
+      // Handle 401 Unauthorized (token expired or invalid)
+      if (status === 401) {
+        // Clear authentication data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        
+        // Redirect to login if not already there
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+      
+      // Handle 403 Forbidden (user doesn't have permission)
+      if (status === 403) {
+        // Clear authentication data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        
+        // Redirect to login with access denied message
+        window.location.href = '/login?error=access_denied';
+      }
+      
+      if (error.response.data && error.response.data.status) {
+        errorMessage = error.response.data.status.displayMessage;
+      } else if (error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else {
+        errorMessage = `Lỗi ${error.response.status}: ${error.response.statusText}`;
+      }
+    } else if (error.request) {
+      // Không có response từ server (lỗi mạng)
+      errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.';
+    } else {
       // Lỗi khác
       errorMessage = error.message;
     }
