@@ -308,8 +308,8 @@ const UserManagementPage = () => {
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
-        <Typography.Title level={3}>Quản lý người dùng</Typography.Title>
-        <Text type="secondary">
+        <Typography.Title level={3} style={{ color: '#8b5cf6', fontWeight: 'bold' }}>Quản lý người dùng - Tribe Admin</Typography.Title>
+        <Text type="secondary" style={{ fontSize: '16px' }}>
           Tổng cộng {pagination.total} người dùng
         </Text>
 
@@ -327,6 +327,7 @@ const UserManagementPage = () => {
             onChange={(e) => setSearchKey(e.target.value)}
             onSearch={handleSearch}
             loading={searchLoading}
+            style={{ borderRadius: '8px' }}
           />
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
@@ -334,7 +335,7 @@ const UserManagementPage = () => {
             placeholder="Lọc theo trạng thái"
             allowClear
             size="large"
-            style={{ width: '100%' }}
+            style={{ width: '100%', borderRadius: '8px' }}
             value={statusFilter}
             onChange={handleStatusFilterChange}
             options={[
@@ -348,7 +349,13 @@ const UserManagementPage = () => {
             icon={<ReloadOutlined />}
             size="large"
             onClick={handleRefresh}
-            style={{ width: '100%' }}
+            style={{ 
+              width: '100%', 
+              borderRadius: '8px',
+              backgroundColor: '#8b5cf6',
+              borderColor: '#8b5cf6',
+              color: 'white'
+            }}
           >
             Làm mới
           </Button>
@@ -370,6 +377,7 @@ const UserManagementPage = () => {
         onChange={handleTableChange}
         rowKey="id"
         scroll={{ x: 1400 }}
+        style={{ borderRadius: '12px' }}
 
       />
 
@@ -382,6 +390,7 @@ const UserManagementPage = () => {
         okText="Xác nhận"
         cancelText="Hủy"
         confirmLoading={changingRoleUsers.has(selectedUser?.id)}
+        okButtonProps={{ style: { backgroundColor: '#8b5cf6', borderColor: '#8b5cf6' } }}
       >
         {selectedUser && (
           <div>
@@ -425,8 +434,14 @@ const UserManagementPage = () => {
         onCancel={handleBlockModalCancel}
         okText="Xác nhận"
         cancelText="Hủy"
-        okType={blockModalData?.isBlocked ? 'default' : 'danger'}
+        okType={blockModalData?.isBlocked ? 'default' : 'primary'}
         confirmLoading={blockModalData ? blockingUsers.has(blockModalData.userId) : false}
+        okButtonProps={{ 
+          style: { 
+            backgroundColor: blockModalData?.isBlocked ? '#52c41a' : '#8b5cf6', 
+            borderColor: blockModalData?.isBlocked ? '#52c41a' : '#8b5cf6' 
+          } 
+        }}
       >
         {blockModalData && (
           <p>{blockModalData.content}</p>

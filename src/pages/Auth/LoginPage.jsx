@@ -53,20 +53,22 @@ const LoginPage = () => {
   };
 
   return (
-    <Row justify="center" align="middle" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+    <Row justify="center" align="middle" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
       <Col xs={24} sm={20} md={16} lg={12} xl={8}>
         <Card 
           style={{ 
-            boxShadow: '0 8px 32px rgba(0,0,0,0.1)', 
-            borderRadius: '12px',
-            border: 'none'
+            boxShadow: '0 8px 32px rgba(139, 92, 246, 0.2)', 
+            borderRadius: '16px',
+            border: 'none',
+            background: 'rgba(255,255,255,0.95)',
+            backdropFilter: 'blur(10px)'
           }}
         >
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <Title level={2} style={{ color: '#1890ff', marginBottom: '8px' }}>
-              Admin Dashboard
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <Title level={2} style={{ color: '#8b5cf6', marginBottom: '8px', fontWeight: 'bold' }}>
+              Tribe Admin
             </Title>
-            <p style={{ color: '#666', margin: 0 }}>Đăng nhập để truy cập hệ thống quản trị</p>
+            <p style={{ color: '#666', margin: 0, fontSize: '16px' }}>Đăng nhập để truy cập hệ thống quản trị</p>
           </div>
 
           {errorMessage && (
@@ -74,7 +76,7 @@ const LoginPage = () => {
               message={errorMessage}
               type="error"
               showIcon
-              style={{ marginBottom: 16 }}
+              style={{ marginBottom: 24, borderRadius: '8px' }}
               closable
               onClose={() => setErrorMessage('')}
             />
@@ -96,9 +98,10 @@ const LoginPage = () => {
               ]}
             >
               <Input
-                prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
+                prefix={<UserOutlined style={{ color: '#8b5cf6' }} />}
                 placeholder="admin@example.com"
                 autoFocus
+                style={{ borderRadius: '8px', borderColor: '#c4b5fd' }}
               />
             </Form.Item>
 
@@ -111,8 +114,9 @@ const LoginPage = () => {
               ]}
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
+                prefix={<LockOutlined style={{ color: '#8b5cf6' }} />}
                 placeholder="Nhập mật khẩu của bạn"
+                style={{ borderRadius: '8px', borderColor: '#c4b5fd' }}
               />
             </Form.Item>
 
@@ -126,7 +130,10 @@ const LoginPage = () => {
                   height: '48px', 
                   fontSize: '16px',
                   fontWeight: '500',
-                  borderRadius: '8px'
+                  borderRadius: '8px',
+                  backgroundColor: '#8b5cf6',
+                  borderColor: '#8b5cf6',
+                  boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
                 }}
               >
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
@@ -134,9 +141,9 @@ const LoginPage = () => {
             </Form.Item>
           </Form>
 
-          <div style={{ textAlign: 'center', marginTop: '16px' }}>
-            <p style={{ color: '#999', fontSize: '12px', margin: 0 }}>
-              Sử dụng thông tin đăng nhập được cung cấp bởi quản trị viên
+          <div style={{ textAlign: 'center', marginTop: '24px' }}>
+            <p style={{ color: '#999', fontSize: '14px', margin: 0 }}>
+              Sử dụng thông tin đăng nhập được cung cấp bởi quản trị viên Tribe Admin
             </p>
           </div>
         </Card>

@@ -65,6 +65,7 @@ const AdminLayout = () => {
           left: 0,
           top: 0,
           bottom: 0,
+          background: 'linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%)',
         }}
       >
         <div style={{ 
@@ -72,10 +73,11 @@ const AdminLayout = () => {
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          borderBottom: '1px solid #303030'
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          background: 'rgba(255,255,255,0.05)'
         }}>
-          <Title level={4} style={{ color: 'white', margin: 0 }}>
-            {collapsed ? 'AD' : 'Admin'}
+          <Title level={4} style={{ color: 'white', margin: 0, fontWeight: 'bold' }}>
+            {collapsed ? 'TA' : 'Tribe Admin'}
           </Title>
         </div>
         
@@ -84,18 +86,23 @@ const AdminLayout = () => {
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
-          style={{ borderRight: 0 }}
+          style={{ 
+            borderRight: 0,
+            background: 'transparent'
+          }}
+          className="custom-menu"
         />
       </Sider>
 
       <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }}>
         <Header style={{ 
           padding: '0 16px', 
-          background: '#fff', 
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          background: 'linear-gradient(90deg, #faf5ff 0%, #f8fafc 100%)', 
+          boxShadow: '0 2px 8px rgba(139, 92, 246, 0.1)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          borderBottom: '1px solid #e0e7ff'
         }}>
           <Button
             type="text"
@@ -105,19 +112,20 @@ const AdminLayout = () => {
               fontSize: '16px',
               width: 64,
               height: 64,
+              color: '#8b5cf6'
             }}
           />
           
           <Space>
-              <div style={{ fontSize: '14px', fontWeight: '500', paddingRight: '20px'}}>
-                {user?.name || user?.email || 'Admin User'}
+              <div style={{ fontSize: '14px', fontWeight: '500', paddingRight: '20px', color: '#8b5cf6'}}>
+                {user?.name || user?.email || 'Tribe Admin'}
               </div>
-            <Avatar icon={<UserOutlined />} />
+            <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#8b5cf6' }} />
             <Button 
               type="text" 
               icon={<LogoutOutlined />}
               onClick={handleLogout}
-              style={{ color: '#ff4d4f' }}
+              style={{ color: '#8b5cf6' }}
             >
               Đăng xuất
             </Button>
@@ -127,9 +135,10 @@ const AdminLayout = () => {
         <Content style={{ 
           margin: '24px 16px',
           padding: '24px',
-          background: '#fff',
-          borderRadius: '8px',
-          minHeight: '280px'
+          background: '#faf5ff',
+          borderRadius: '12px',
+          minHeight: '280px',
+          border: '1px solid #e0e7ff'
         }}>
           <Outlet />
         </Content>
@@ -143,10 +152,25 @@ const AdminLayout = () => {
         onCancel={cancelLogout}
         okText="Đăng xuất"
         cancelText="Hủy"
-        okType="danger"
+        okType="primary"
+        okButtonProps={{ style: { backgroundColor: '#8b5cf6', borderColor: '#8b5cf6' } }}
       >
-        <p>Bạn có chắc muốn đăng xuất khỏi hệ thống?</p>
+        <p>Bạn có chắc muốn đăng xuất khỏi hệ thống Tribe Admin?</p>
       </Modal>
+
+      <style jsx>{`
+        .custom-menu .ant-menu-item {
+          color: rgba(255,255,255,0.9) !important;
+        }
+        .custom-menu .ant-menu-item:hover {
+          background-color: rgba(255,255,255,0.15) !important;
+          color: white !important;
+        }
+        .custom-menu .ant-menu-item-selected {
+          background-color: rgba(255,255,255,0.25) !important;
+          color: white !important;
+        }
+      `}</style>
     </Layout>
   );
 };
