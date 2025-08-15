@@ -97,8 +97,9 @@ const StatisticsPage = () => {
       </div>
 
       <Row gutter={[16, 16]}>
+        {/* Hàng 1: Nhóm tổng quan và trạng thái người dùng */}
         {/* Tổng số người dùng */}
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
               title="Tổng người dùng"
@@ -110,7 +111,7 @@ const StatisticsPage = () => {
         </Col>
 
         {/* Người dùng hoạt động */}
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
               title="Người dùng hoạt động"
@@ -122,7 +123,7 @@ const StatisticsPage = () => {
         </Col>
 
         {/* Người dùng bị chặn */}
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
               title="Người dùng bị chặn"
@@ -133,20 +134,8 @@ const StatisticsPage = () => {
           </Card>
         </Col>
 
-        {/* Người dùng mới hôm nay */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Người dùng mới hôm nay"
-              value={stats?.newUsersToday || 0}
-              prefix={<UserAddOutlined style={{ color: '#722ed1' }} />}
-              valueStyle={{ color: '#722ed1' }}
-            />
-          </Card>
-        </Col>
-
         {/* Quản trị viên */}
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
               title="Quản trị viên"
@@ -157,20 +146,21 @@ const StatisticsPage = () => {
           </Card>
         </Col>
 
-        {/* Tổng số lần truy cập */}
-        <Col xs={24} sm={12} lg={6}>
+        {/* Người dùng mới hôm nay */}
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
-              title="Tổng số lần truy cập"
-              value={totalLoginCount}
-              prefix={<LoginOutlined style={{ color: '#13c2c2' }} />}
-              valueStyle={{ color: '#13c2c2' }}
+              title="Người dùng mới hôm nay"
+              value={stats?.newUsersToday || 0}
+              prefix={<UserAddOutlined style={{ color: '#722ed1' }} />}
+              valueStyle={{ color: '#722ed1' }}
             />
           </Card>
         </Col>
 
+        {/* Hàng 2: Nhóm phân tích tỷ lệ và truy cập */}
         {/* Tỷ lệ hoạt động */}
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
               title="Tỷ lệ hoạt động"
@@ -183,7 +173,7 @@ const StatisticsPage = () => {
         </Col>
 
         {/* Tỷ lệ bị chặn */}
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
               title="Tỷ lệ bị chặn"
@@ -196,7 +186,7 @@ const StatisticsPage = () => {
         </Col>
 
         {/* Tỷ lệ quản trị viên */}
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
               title="Tỷ lệ quản trị viên"
@@ -208,8 +198,20 @@ const StatisticsPage = () => {
           </Card>
         </Col>
 
+        {/* Tổng số lần truy cập */}
+        <Col xs={24} sm={12} lg={4.8}>
+          <Card>
+            <Statistic
+              title="Tổng số lần truy cập"
+              value={totalLoginCount}
+              prefix={<LoginOutlined style={{ color: '#13c2c2' }} />}
+              valueStyle={{ color: '#13c2c2' }}
+            />
+          </Card>
+        </Col>
+
         {/* Trung bình truy cập/người dùng */}
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} lg={4.8}>
           <Card>
             <Statistic
               title="TB truy cập/người dùng"
